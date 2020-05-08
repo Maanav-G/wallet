@@ -3,22 +3,52 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Page Title</title>
+    <title>Wallet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
 </head>
 <body>
+  <div class="container">
 
-    <div class="container">
-        <button class="button" id="link-button">
-            <p>Link Account</p>
-        </button>
+    <h2>Wallet [In Progress]</h2>
+    <p>Welcome to Wallet, a personal finance and budgetting application I made using Plaid's API, that shows your consolidated financial portfolio by simply connecting all your bank accounts.</p>
+    <div class="button">
+      <button class="button d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="link-button">
+          <span class="align-middle">Connect Account</span>
+      </button>
     </div>
+
+    <!-- IF ACCESS_TOKENS > 1 -->
+    <div class="row" style="margin-top: 5%">
+      <div class="col" style="text-align: center;">
+        NET WORTH
+      </div>
+      <div class="col-6" style="text-align: center;">
+        GRAPHS
+      </div>
+      <div class="col" style="text-align: center;">
+        TRANSACTIONS
+      </div>
+    </div>
+
+
+    
+
+
+
+  </div>
+
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
     <script type="text/javascript">
+
+      const access_tokens = [];
+
     (function($) {
+
       var handler = Plaid.create({
         clientName: 'THIS APP',
         env: 'sandbox',
@@ -31,16 +61,30 @@
           // Optional, called when Link loads
         },
 
+
         onSuccess: function(public_token, metadata) {
           const URI = "http://127.0.0.1:8000"
           const formData  = new FormData();
+
           formData.append('public_token', public_token);
           const requestOptions = {
             method: 'POST',
             body: formData,
-            // credentials: 'same-origin'
-            };
-            fetch(`${URI}/get_access_token`, requestOptions)},
+          };
+          
+
+          fetch(`${URI}/get_access_token`, requestOptions)
+          .then(function(response) {
+            console.log(response.json())
+          })
+          .then(data => {
+            const access_tokens = access_tokens.concat(data);
+            console.log(access_tokens)
+          })
+          .catch(function(error) {
+            console.error(error)
+          });          
+        },
 
 
         onExit: function(err, metadata) {
@@ -69,7 +113,9 @@
       $('#link-button').on('click', function(e) {
         handler.open();
       });
-    })(jQuery);
+    })    
+    (jQuery);
+    
     </script>
 </body>
 </html>

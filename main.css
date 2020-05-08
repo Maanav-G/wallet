@@ -1,9 +1,10 @@
 body {
+    padding: 1%;
     font-family: "Avenir Next";
     font-size: 100%; 
+    color: #858796;
 }
 
-.button {
-    font-family: "Avenir Next";
-    font-size: 100%; 
+div.button {
+    text-align: center;
 }
