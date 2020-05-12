@@ -8,7 +8,10 @@
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="plaid-link.js"></script>
-    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>    
+    <!-- <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>     -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+
 </head>
 <header>
   <br/>
@@ -31,8 +34,12 @@
       </div>
 
       <div class="col-6" style="text-align: center;">
-          <div id="chartContainer" style="height: 500px; width: 100%;">
-          </div>
+          <!-- <div id="chartContainer" style="height: 500px; width: 100%;">
+          </div> -->
+          <h5 class="card-title">Monthly Spending</h5>
+          <p class="card-subtitle mb-2 text-muted" >Your spending so far this month</p>
+          <div id="chart">
+            </div>
 
       </div>
       <div class="col" style="text-align: center;">
@@ -48,13 +55,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
-  <!-- <script type="text/javascript">
-
-    window.addEventListener("click", function(event) {
-    });
-    
-    window.onload = 
-    </script> -->
 
 
   <script type="text/javascript">
@@ -122,7 +122,7 @@
           function call_data(data) {
             sort_balances(data['balances'][0])
             sort_transactions(data['transactions'])
-            create_graph('TEST')
+            create_graph(data['monthly_spending'])
           }
           // ---------------------------------------------------------
           function sort_balances(data){
@@ -206,54 +206,42 @@
           }
 
 
-          function create_graph(title) {
-            var chart = new CanvasJS.Chart("chartContainer", {
-            animationEnabled: true,
-            theme: "light2",
-            title:{
-              text: title            
+          function create_graph(data){
+            dates = data[0]
+            prices = data[1]
+
+            for(i = 0; i < prices.length; i++){
+              current = prices[i]
+              formatted_val = current.toFixed(2)
+              prices[i] = formatted_val
+            }
+
+            var options = {
+            chart: {
+              type: 'line'
             },
-            data: [{
-              // Change type to "doughnut", "line", "splineArea", etc.
-              type: "line",
-              dataPoints: [
-                { label: "apple",  y: 10  },
-                { label: "orange", y: 15  },
-                { label: "banana", y: 25  },
-                { label: "mango",  y: 30  },
-                { label: "grape",  y: 28  }
-              ]
-            }]
-          });
+            stroke: {
+              curve: 'smooth',
+            },
+            series: [{
+              name: 'sales',
+              data: prices
+            }],
+            xaxis: {
+              categories: dates
+            }
+          }
+          var chart = new ApexCharts(document.querySelector("#chart"), options);
           chart.render();
           }
-
-
-          // function get_transactions(data) {
-          //   const formData  = new FormData();
-          //   formData.append('access_token', data);
-          //   const requestOptions = {
-          //   method: 'POST',
-          //   body: formData,
-          //   };
-          //   fetch(`${URI}/get_transactions`, requestOptions)
-          //   .then(function(response) {
-          //     // console.log(response.json());
-          //     return response.json();
-          //   })
-          //   .then(function(data){
-          //     console.log(data)
-          //   })
-          //   .catch(function(error) {
-          //     console.error(error)
-          //     });
-          // }
-
 
           // FORMAT TO CURRENCY --------------------------------------
           const formatter = new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'CAD',
+            minimumFractionDigits: 2
+          })
+          const formatter_value = new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 2
           })
           // ---------------------------------------------------------

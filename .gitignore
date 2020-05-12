@@ -1,3 +1,6 @@
 node_modules
 __pycache__
 backend
+test.html
+main.js
+package-lock.json
