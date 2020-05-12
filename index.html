@@ -7,12 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script> -->
-
     <script src="plaid-link.js"></script>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>    
 </head>
 <header>
   <br/>
@@ -28,10 +24,6 @@
         </button>
     </div>
 
-
-  
-
-
     <div class="row" style="margin-top: 5%">
 
       <div class="col" style="text-align: center;">
@@ -39,22 +31,32 @@
       </div>
 
       <div class="col-6" style="text-align: center;">
-        -- <div id="accounts"></div> ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+          <div id="chartContainer" style="height: 500px; width: 100%;">
+          </div>
+
       </div>
       <div class="col" style="text-align: center;">
         <div id="transactions"></div>
       </div>
     </div>
+
     
-    
-    
-  
 
 
   </div>
 
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+  <!-- <script type="text/javascript">
+
+    window.addEventListener("click", function(event) {
+    });
+    
+    window.onload = 
+    </script> -->
+
+
   <script type="text/javascript">
     (function($) {
 
@@ -89,6 +91,7 @@
           })
           .then(function(data){
             get_info(data)
+            // console.log(1)
           })
           .catch(function(error) {
             console.error(error)
@@ -119,6 +122,7 @@
           function call_data(data) {
             sort_balances(data['balances'][0])
             sort_transactions(data['transactions'])
+            create_graph('TEST')
           }
           // ---------------------------------------------------------
           function sort_balances(data){
@@ -189,12 +193,39 @@
                     <div class="col"><p class="card-text" style="text-align: left">${current.name}</p></div>  
                     <div class="col"><p class="card-text"style="text-align: right">${formatter.format(current.balance)}</p></div>
                   </div>
+                  <div class="row">
+                    <div class="col"><p class="card-text" style="text-align: left">${current.date}</p></div>  
+                    <div class="col"><p class="card-text"style="text-align: right">${current.account_name}</p></div> 
+                  </div>
                 </div>
               `
               list = list + template
             }
             list = list + '</div>'
             appendData(list, 'transactions')
+          }
+
+
+          function create_graph(title) {
+            var chart = new CanvasJS.Chart("chartContainer", {
+            animationEnabled: true,
+            theme: "light2",
+            title:{
+              text: title            
+            },
+            data: [{
+              // Change type to "doughnut", "line", "splineArea", etc.
+              type: "line",
+              dataPoints: [
+                { label: "apple",  y: 10  },
+                { label: "orange", y: 15  },
+                { label: "banana", y: 25  },
+                { label: "mango",  y: 30  },
+                { label: "grape",  y: 28  }
+              ]
+            }]
+          });
+          chart.render();
           }
 
 
