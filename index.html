@@ -28,80 +28,21 @@
         </button>
     </div>
 
+
   
 
+
     <div class="row" style="margin-top: 5%">
-      <div class="col" style="text-align: center;">
 
+      <div class="col" style="text-align: center;">
         <div id="accounts"></div>
-
-        <h5 class="card-title">Accounts</h5>
-        <p class="card-subtitle mb-2 text-muted" >A brief overview of all your accounts</p>
-        
-        <div class="cash">
-          <a class="btn btn-light btn-block card-text" data-toggle="collapse" href="#cash" role="button" aria-expanded="false" aria-controls="collapseExample">
-            <div class="row">
-              <div class="col"><p class="card-text" style="text-align: left"> Cash</p></div>
-              <div class="col"><p class="card-text"style="text-align: right">$6,799.08</p></div>
-            </div>
-          </a>
-          <div class="collapse" id="cash">
-            <div class="card-body">
-              <div class="row">
-                <div class="col"><p class="card-text" style="text-align: left"> TD Chequing</p></div> 
-                <div class="col"><p class="card-text"style="text-align: right">$99.08</p></div>
-              </div>
-              <div class="row">
-                <div class="col"><p class="card-text" style="text-align: left"> TD Savings</p></div> 
-                <div class="col"><p class="card-text"style="text-align: right">$35,078.05</p></div>
-              </div>
-              <div class="row">
-                <div class="col"><p class="card-text" style="text-align: left"> Scotia Savings</p></div> 
-                <div class="col"><p class="card-text"style="text-align: right">$27,871.52</p></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="creditcard">
-            <a class="btn btn-light btn-block card-text" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-              <div class="row">
-                <div class="col"><p class="card-text" style="text-align: left">Credit Cards</p></div>
-                <div class="col"><p class="card-text"style="text-align: right">-$78.80</p></div>
-              </div>
-            </a>
-            <div class="collapse" id="collapseExample">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col"><p class="card-text" style="text-align: left"> TD VISA</p></div> 
-                  <div class="col"><p class="card-text"style="text-align: right">-$78.80</p></div>
-                </div>
-              </div>
-            </div>
-        </div>
-
-            
-            <!-- <a href="#" class="card-link">Card link</a>
-            <a href="#" class="card-link">Another link</a> -->
-
-
-
-
-
-
-
-        <div id="cash_total"></div>
-        <div id="cash_total_accounts"></div>
-        <div id="creditcard_total"></div>
-        <div id="investment_total"></div>
-        <div id="loan_total"></div>
-        <div id="other_total"></div>
       </div>
+
       <div class="col-6" style="text-align: center;">
-        <h4>Graphs</h4> <br/> <br/>
+        -- <div id="accounts"></div> ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       </div>
       <div class="col" style="text-align: center;">
-        <h4>Transactions</h4> <br/> <br/>
+        <div id="transactions"></div>
       </div>
     </div>
     
@@ -111,8 +52,6 @@
 
 
   </div>
-
-
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
@@ -149,81 +88,144 @@
             return response.json();
           })
           .then(function(data){
-            get_balances(data)
-            // appendDate(data)
+            get_info(data)
           })
           .catch(function(error) {
             console.error(error)
           });
 
-          function get_balances(data) {
+          // GET INFORMATION ----------------------------------------
+          function get_info(data) {
             const formData  = new FormData();
             formData.append('access_token', data);
             const requestOptions = {
             method: 'POST',
             body: formData,
             };
-            fetch(`${URI}/get_balances`, requestOptions)
+            fetch(`${URI}/get_info`, requestOptions)
             .then(function(response) {
               // console.log(response.json());
               return response.json();
             })
             .then(function(data){
-              // console.log(data[0]['cash']['total'])
-              // appendData(data[0]['cash']['total'], 'cash')
-              // appendData(data[0]['creditcard']['total'], 'credit')
-              sort_balances(data[0])
+              // console.log(data)
+              call_data(data[0])
             })
             .catch(function(error) {
               console.error(error)
               });
           }
-
+          // ---------------------------------------------------------
+          function call_data(data) {
+            sort_balances(data['balances'][0])
+            sort_transactions(data['transactions'])
+          }
+          // ---------------------------------------------------------
           function sort_balances(data){
             cash_data = createAccountCard(data['cash'], 'Cash')
             creditcard_data = createAccountCard(data['creditcard'], 'Creditcard')
             investment_data = createAccountCard(data['investment'], 'Investment')
             loan_data = createAccountCard(data['loan'], 'Loan')
             other_data = createAccountCard(data['other'], 'Other')
-
-            data = cash_data + ' ' + creditcard_data + ' ' + investment_data + ' ' + loan_data + ' ' + other_data
+            header = `
+              <h5 class="card-title">Accounts</h5>
+              <p class="card-subtitle mb-2 text-muted" >A brief overview of all your accounts</p>
+              <br/>
+            `
+            
+            data = header + ' ' + cash_data + ' ' + creditcard_data + ' ' + investment_data + ' ' + loan_data + ' ' + other_data
             appendData(data, 'accounts')
           }
 
           function createAccountCard(account, id){
+
             template = `
               <div class="${id}">
                   <a class="btn btn-light btn-block card-text" data-toggle="collapse" href="#${id}" role="button" aria-expanded="false" aria-controls="${id}">
                       <div class="row">
                           <div class="col"><p class="card-text" style="text-align: left">${id}</p></div>
-                          <div class="col"><p class="card-text"style="text-align: right">${account.total}</p></div>
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(account.total)}</p></div>
                       </div>
                   </a>
                   <div class="collapse" id="${id}">
                       <div class="card-body">
-                          uhhhhh
+                          ${createAccountsList(account.accounts)}
                       </div>
                   </div>
               </div>
+              <br/>
               `
               // ${createAccountsList(account.accounts)}
             return template
           }
 
           function createAccountsList(data){
-            const list = ' '
+            list = ' '
             for(i = 0; i < data.length; i++){
                 const current = data[i]
-                const template = `
+                template = `
                     <div class="row">
                         <div class="col"><p class="card-text" style="text-align: left">${current.name}</p></div>  
-                        <div class="col"><p class="card-text"style="text-align: right">${current.balance}</p></div>
+                        <div class="col"><p class="card-text"style="text-align: right">${formatter.format(current.balance)}</p></div>
                     </div>
                     `     
                 list = list + template
             }
             return list
           }
+          // ---------------------------------------------------------
+          function sort_transactions(data){
+            list = `
+              <h5 class="card-title">Transactions</h5>
+              <p class="card-subtitle mb-2 text-muted" >Your recent transactions</p>
+            `
+            list = list + '<div class="card-body">'
+
+            for(i = 0; i < data.length; i++){
+              current = data[i]
+              template = `
+                <div class = "btn btn-light btn-block card-text" >
+                  <div class="row">
+                    <div class="col"><p class="card-text" style="text-align: left">${current.name}</p></div>  
+                    <div class="col"><p class="card-text"style="text-align: right">${formatter.format(current.balance)}</p></div>
+                  </div>
+                </div>
+              `
+              list = list + template
+            }
+            list = list + '</div>'
+            appendData(list, 'transactions')
+          }
+
+
+          // function get_transactions(data) {
+          //   const formData  = new FormData();
+          //   formData.append('access_token', data);
+          //   const requestOptions = {
+          //   method: 'POST',
+          //   body: formData,
+          //   };
+          //   fetch(`${URI}/get_transactions`, requestOptions)
+          //   .then(function(response) {
+          //     // console.log(response.json());
+          //     return response.json();
+          //   })
+          //   .then(function(data){
+          //     console.log(data)
+          //   })
+          //   .catch(function(error) {
+          //     console.error(error)
+          //     });
+          // }
+
+
+          // FORMAT TO CURRENCY --------------------------------------
+          const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'CAD',
+            minimumFractionDigits: 2
+          })
+          // ---------------------------------------------------------
 
           // -------------
           function appendData(data, id) {
