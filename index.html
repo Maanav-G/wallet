@@ -5,48 +5,118 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Wallet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-</head>
-<body>
-  <div class="container">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script> -->
 
-    <h2>Wallet [In Progress]</h2>
+    <script src="plaid-link.js"></script>
+</head>
+<header>
+  <br/>
+</header>
+<body>
+  <div class="container-fluid">
+
+    <h2>[Toonie] Wallet</h2>
     <p>Welcome to Wallet, a personal finance and budgetting application I made using Plaid's API, that shows your consolidated financial portfolio by simply connecting all your bank accounts.</p>
     <div class="button">
-      <button class="button d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="link-button">
-          <span class="align-middle">Connect Account</span>
-      </button>
+        <button type="button" class="btn btn-outline-dark" id="link-button">
+          Connect Account
+        </button>
     </div>
 
-    <!-- IF ACCESS_TOKENS > 1 -->
+  
+
     <div class="row" style="margin-top: 5%">
       <div class="col" style="text-align: center;">
-        NET WORTH
+
+        <div id="accounts"></div>
+
+        <h5 class="card-title">Accounts</h5>
+        <p class="card-subtitle mb-2 text-muted" >A brief overview of all your accounts</p>
+        
+        <div class="cash">
+          <a class="btn btn-light btn-block card-text" data-toggle="collapse" href="#cash" role="button" aria-expanded="false" aria-controls="collapseExample">
+            <div class="row">
+              <div class="col"><p class="card-text" style="text-align: left"> Cash</p></div>
+              <div class="col"><p class="card-text"style="text-align: right">$6,799.08</p></div>
+            </div>
+          </a>
+          <div class="collapse" id="cash">
+            <div class="card-body">
+              <div class="row">
+                <div class="col"><p class="card-text" style="text-align: left"> TD Chequing</p></div> 
+                <div class="col"><p class="card-text"style="text-align: right">$99.08</p></div>
+              </div>
+              <div class="row">
+                <div class="col"><p class="card-text" style="text-align: left"> TD Savings</p></div> 
+                <div class="col"><p class="card-text"style="text-align: right">$35,078.05</p></div>
+              </div>
+              <div class="row">
+                <div class="col"><p class="card-text" style="text-align: left"> Scotia Savings</p></div> 
+                <div class="col"><p class="card-text"style="text-align: right">$27,871.52</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="creditcard">
+            <a class="btn btn-light btn-block card-text" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+              <div class="row">
+                <div class="col"><p class="card-text" style="text-align: left">Credit Cards</p></div>
+                <div class="col"><p class="card-text"style="text-align: right">-$78.80</p></div>
+              </div>
+            </a>
+            <div class="collapse" id="collapseExample">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col"><p class="card-text" style="text-align: left"> TD VISA</p></div> 
+                  <div class="col"><p class="card-text"style="text-align: right">-$78.80</p></div>
+                </div>
+              </div>
+            </div>
+        </div>
+
+            
+            <!-- <a href="#" class="card-link">Card link</a>
+            <a href="#" class="card-link">Another link</a> -->
+
+
+
+
+
+
+
+        <div id="cash_total"></div>
+        <div id="cash_total_accounts"></div>
+        <div id="creditcard_total"></div>
+        <div id="investment_total"></div>
+        <div id="loan_total"></div>
+        <div id="other_total"></div>
       </div>
       <div class="col-6" style="text-align: center;">
-        GRAPHS
+        <h4>Graphs</h4> <br/> <br/>
       </div>
       <div class="col" style="text-align: center;">
-        TRANSACTIONS
+        <h4>Transactions</h4> <br/> <br/>
       </div>
     </div>
-
-
     
-
+    
+    
+  
 
 
   </div>
 
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
-    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
-    <script type="text/javascript">
-
-      const access_tokens = [];
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+  <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+  <script type="text/javascript">
     (function($) {
 
       var handler = Plaid.create({
@@ -75,17 +145,98 @@
 
           fetch(`${URI}/get_access_token`, requestOptions)
           .then(function(response) {
-            console.log(response.json())
+            // console.log(response.json());
+            return response.json();
           })
-          .then(data => {
-            const access_tokens = access_tokens.concat(data);
-            console.log(access_tokens)
+          .then(function(data){
+            get_balances(data)
+            // appendDate(data)
           })
           .catch(function(error) {
             console.error(error)
-          });          
-        },
+          });
 
+          function get_balances(data) {
+            const formData  = new FormData();
+            formData.append('access_token', data);
+            const requestOptions = {
+            method: 'POST',
+            body: formData,
+            };
+            fetch(`${URI}/get_balances`, requestOptions)
+            .then(function(response) {
+              // console.log(response.json());
+              return response.json();
+            })
+            .then(function(data){
+              // console.log(data[0]['cash']['total'])
+              // appendData(data[0]['cash']['total'], 'cash')
+              // appendData(data[0]['creditcard']['total'], 'credit')
+              sort_balances(data[0])
+            })
+            .catch(function(error) {
+              console.error(error)
+              });
+          }
+
+          function sort_balances(data){
+            cash_data = createAccountCard(data['cash'], 'Cash')
+            creditcard_data = createAccountCard(data['creditcard'], 'Creditcard')
+            investment_data = createAccountCard(data['investment'], 'Investment')
+            loan_data = createAccountCard(data['loan'], 'Loan')
+            other_data = createAccountCard(data['other'], 'Other')
+
+            data = cash_data + ' ' + creditcard_data + ' ' + investment_data + ' ' + loan_data + ' ' + other_data
+            appendData(data, 'accounts')
+          }
+
+          function createAccountCard(account, id){
+            template = `
+              <div class="${id}">
+                  <a class="btn btn-light btn-block card-text" data-toggle="collapse" href="#${id}" role="button" aria-expanded="false" aria-controls="${id}">
+                      <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">${id}</p></div>
+                          <div class="col"><p class="card-text"style="text-align: right">${account.total}</p></div>
+                      </div>
+                  </a>
+                  <div class="collapse" id="${id}">
+                      <div class="card-body">
+                          uhhhhh
+                      </div>
+                  </div>
+              </div>
+              `
+              // ${createAccountsList(account.accounts)}
+            return template
+          }
+
+          function createAccountsList(data){
+            const list = ' '
+            for(i = 0; i < data.length; i++){
+                const current = data[i]
+                const template = `
+                    <div class="row">
+                        <div class="col"><p class="card-text" style="text-align: left">${current.name}</p></div>  
+                        <div class="col"><p class="card-text"style="text-align: right">${current.balance}</p></div>
+                    </div>
+                    `     
+                list = list + template
+            }
+            return list
+          }
+
+          // -------------
+          function appendData(data, id) {
+            var mainContainer = document.getElementById(id);
+            var div = document.createElement("div");
+            div.innerHTML = data
+            mainContainer.appendChild(div);
+          }
+          // -------------
+
+        
+          
+        },
 
         onExit: function(err, metadata) {
           // The user exited the Link flow.
@@ -115,7 +266,9 @@
       });
     })    
     (jQuery);
-    
-    </script>
+
+  </script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </body>
 </html>
