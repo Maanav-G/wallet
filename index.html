@@ -34,12 +34,8 @@
       </div>
 
       <div class="col-6" style="text-align: center;">
-          <!-- <div id="chartContainer" style="height: 500px; width: 100%;">
-          </div> -->
-          <h5 class="card-title">Monthly Spending</h5>
-          <p class="card-subtitle mb-2 text-muted" >Your spending so far this month</p>
-          <div id="chart">
-            </div>
+          <div id="graphs"></div>
+          <div id="chart"></div>
 
       </div>
       <div class="col" style="text-align: center;">
@@ -122,7 +118,7 @@
           function call_data(data) {
             sort_balances(data['balances'][0])
             sort_transactions(data['transactions'])
-            create_graph(data['monthly_spending'])
+            build_graph(data['monthly_spending'])
           }
           // ---------------------------------------------------------
           function sort_balances(data){
@@ -204,7 +200,15 @@
             list = list + '</div>'
             appendData(list, 'transactions')
           }
-
+          // ---------------------------------------------------------
+          function build_graph(data){
+            create_graph(data)
+            template = `
+              <h5 class="card-title">Monthly Spending</h5>
+              <p class="card-subtitle mb-2 text-muted" >Your spending so far this month</p>
+            `
+            appendData(template, 'graphs')
+          }
 
           function create_graph(data){
             dates = data[0]
@@ -214,6 +218,16 @@
               current = prices[i]
               formatted_val = current.toFixed(2)
               prices[i] = formatted_val
+
+               monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+              utc_month = new Date(dates[i]).getUTCMonth();
+              month = monthNames[utc_month]
+              date = new Date(dates[i]).getUTCDate();
+              utc = month + ' ' + date
+              dates[i] = utc
+              console.log(utc)
+
             }
 
             var options = {
@@ -245,8 +259,6 @@
             minimumFractionDigits: 2
           })
           // ---------------------------------------------------------
-
-          // -------------
           function appendData(data, id) {
             var mainContainer = document.getElementById(id);
             var div = document.createElement("div");
