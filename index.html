@@ -19,15 +19,37 @@
 <body>
   <div class="container-fluid">
 
-    <h2>[Toonie] Wallet</h2>
-    <p>Welcome to Wallet, a personal finance and budgetting application I made using Plaid's API, that shows your consolidated financial portfolio by simply connecting all your bank accounts.</p>
-    <div class="button">
-        <button type="button" class="btn btn-outline-dark" id="link-button">
-          Connect Account
-        </button>
+    <h2>[In Progress] Wallet</h2>
+    <p>Welcome to Wallet, a personal finance and budgetting application I made using Plaid's API, that shows your consolidated financial portfolio by simply connecting all your bank accounts. Currently in progress and only supports one account at a time.</p>
+    
+    <br/>
+
+    <div class="row">
+      <div class="col">
+        <div>
+          <p>Click here to use Wallet with your personal banking information:</p>
+          <button type="button" class="btn btn-outline-dark" id="link-button">
+              Connect Account
+          </button>
+        </div>
+      </div>
+      <div class="col">
+        <div>
+          <p>Click here to use Wallet with a demo account:</p>
+          <button type="button" class="btn btn-outline-dark" id="link-button">
+              Connect Account
+          </button>
+        </div>
+      </div>
+      <div class="col"></div>
+      <div class="col"></div>
     </div>
 
-    <div class="row" style="margin-top: 5%">
+
+    <br/>
+
+
+    <div class="row">
 
       <div class="col" style="text-align: center;">
         <div id="accounts"></div>
@@ -48,7 +70,6 @@
 
   </div>
 
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
 
@@ -57,7 +78,7 @@
     (function($) {
 
       var handler = Plaid.create({
-        clientName: 'THIS APP',
+        clientName: 'Wallet',
         env: 'sandbox',
         key: 'e706d62392682c2fed032017b44fdb',
         product: ['auth'],
@@ -65,7 +86,7 @@
         // Optional – use webhooks to get transaction and error updates
         webhook: 'https://requestb.in',
         onLoad: function() {
-          // Optional, called when Link loads
+          console.log('onLoad function')
         },
 
 
@@ -122,18 +143,55 @@
           }
           // ---------------------------------------------------------
           function sort_balances(data){
+            header = `
+              <h5 class="card-title">Accounts</h5>
+              <p class="card-subtitle mb-2 text-muted">A brief overview of all your accounts</p>
+              <br/>
+            `
+            
+            networth = data['cash']['total'] + data['creditcard']['total'] + data['investment']['total'] + data['loan']['total'] + data['other']['total']
+            networth_data = ` 
+              <div class="networth">
+                  <a class="btn btn-light btn-block card-text" data-toggle="collapse" href="#networth" role="button" aria-expanded="false" aria-controls="networth">
+                      <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Networth</p></div>
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(networth)}</p></div>
+                      </div>
+                  </a>
+                  <div class="collapse" id="networth">
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Cash</p></div>  
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(data['cash']['total'])}</p></div>
+                        </div>
+                        <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Creditcard</p></div>  
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(data['creditcard']['total'])}</p></div>
+                        </div>
+                        <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Investment</p></div>  
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(data['investment']['total'])}</p></div>
+                        </div>                        
+                        <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Loan</p></div>  
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(data['loan']['total'])}</p></div>
+                        </div>
+                        <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Other</p></div>  
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(data['other']['total'])}</p></div>
+                        </div>
+                      </div>
+                  </div>
+              </div>
+              <br/>
+            `
             cash_data = createAccountCard(data['cash'], 'Cash')
             creditcard_data = createAccountCard(data['creditcard'], 'Creditcard')
             investment_data = createAccountCard(data['investment'], 'Investment')
             loan_data = createAccountCard(data['loan'], 'Loan')
             other_data = createAccountCard(data['other'], 'Other')
-            header = `
-              <h5 class="card-title">Accounts</h5>
-              <p class="card-subtitle mb-2 text-muted" >A brief overview of all your accounts</p>
-              <br/>
-            `
             
-            data = header + ' ' + cash_data + ' ' + creditcard_data + ' ' + investment_data + ' ' + loan_data + ' ' + other_data
+            data = header + ' ' + networth_data + ' ' + cash_data + ' ' + creditcard_data + ' ' + investment_data + ' ' + loan_data + ' ' + other_data
             appendData(data, 'accounts')
           }
 
@@ -273,6 +331,7 @@
         },
 
         onExit: function(err, metadata) {
+          console.log('onExit function')
           // The user exited the Link flow.
           if (err != null) {
             // The user encountered a Plaid API error prior to exiting.
