@@ -218,32 +218,33 @@
               current = prices[i]
               formatted_val = current.toFixed(2)
               prices[i] = formatted_val
-
-               monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
-
-              utc_month = new Date(dates[i]).getUTCMonth();
-              month = monthNames[utc_month]
-              date = new Date(dates[i]).getUTCDate();
-              utc = month + ' ' + date
-              dates[i] = utc
-              console.log(utc)
-
             }
 
             var options = {
             chart: {
-              type: 'line'
+              type: 'line',
+              fontFamily: 'Avenir Next',
+              foreColor: '#373d3f'
             },
             stroke: {
               curve: 'smooth',
+              width: 1
             },
             series: [{
-              name: 'sales',
+              name: "Spending",
               data: prices
             }],
             xaxis: {
-              categories: dates
-            }
+              categories: dates,
+              type: 'datetime'
+            },
+            yaxis: {
+              labels: {
+                formatter: function (value) {
+                  return "$" + formatter_value.format(value);
+                }
+              },
+            },
           }
           var chart = new ApexCharts(document.querySelector("#chart"), options);
           chart.render();
