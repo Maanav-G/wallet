@@ -24,29 +24,45 @@
     
     <br/>
 
-    <div class="row">
+    <div class="row" id="connect_buttons" >
       <div class="col">
         <div>
-          <p>Click here to use Wallet with your personal banking information:</p>
+          <p id="connect_title">Click here to use Wallet with your personal banking information:</p>
           <button type="button" class="btn btn-outline-dark" id="link-button">
-              Connect Account
+            Connect Account
+            <!-- <p id="connect_button"></p> -->
           </button>
         </div>
       </div>
-      <div class="col">
-        <div>
-          <p>Click here to use Wallet with a demo account:</p>
-          <button type="button" class="btn btn-outline-dark" id="link-button">
-              Connect Account
-          </button>
-        </div>
-      </div>
+      <div class="col" id="clear_button"></div>
       <div class="col"></div>
       <div class="col"></div>
     </div>
 
 
     <br/>
+<!-- 
+    <div class="row" id="connect_buttons" style="display: none">
+        <div class="col">
+          <div>
+            <p>Click here to use Wallet with your personal banking information:</p>
+            <button type="button" class="btn btn-outline-dark" id="add-button">
+                Add another Account
+            </button>
+          </div>
+        </div>
+        <div class="col">
+          <div>
+            <p>Click here to use Wallet with a demo account:</p>
+            <button type="button" class="btn btn-outline-dark" id="clear-button">
+                Clear
+            </button>
+          </div>
+        </div>
+        <div class="col"></div>
+        <div class="col"></div>
+      </div> -->
+  
 
 
     <div class="row">
@@ -73,49 +89,56 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
 
+  <script>
 
-  <script type="text/javascript">
-    (function($) {
+    cookies = document.cookie
+      .split(';')
+      .map(cookie => cookie.split('='))
+      .reduce((accumulator, [key, value]) =>
+        ({ ...accumulator, [key.trim()]: decodeURIComponent(value)}), 
+    {})
 
-      var handler = Plaid.create({
-        clientName: 'Wallet',
-        env: 'sandbox',
-        key: 'e706d62392682c2fed032017b44fdb',
-        product: ['auth'],
-        countryCodes: ['CA'],
-        // Optional – use webhooks to get transaction and error updates
-        webhook: 'https://requestb.in',
-        onLoad: function() {
-          console.log('onLoad function')
-        },
+    access_token_arr = []
+    access_token_json = JSON.stringify(access_token_arr)
 
+    if(cookies.access_token){
+      arr = cookies.access_token
+      document.cookie = 'access_token=' + arr
+    } else {
+      document.cookie = 'access_token=' + access_token_json
+    }
 
-        onSuccess: function(public_token, metadata) {
-          const URI = "http://127.0.0.1:8000"
-          const formData  = new FormData();
+    function get_access_tokens(){
+      cookies = document.cookie.split(';').map(cookie => cookie.split('=')).reduce((accumulator, [key, value]) => ({ ...accumulator, [key.trim()]: decodeURIComponent(value)}),{})
+      arr = JSON.parse(cookies.access_token)
+      return arr
+    }
 
-          formData.append('public_token', public_token);
-          const requestOptions = {
-            method: 'POST',
-            body: formData,
-          };
-          
+    function add_access_token(data){
+      tokens_arr = get_access_tokens()
+      tokens_arr.push(data)
+      tokens_json = JSON.stringify(tokens_arr)
+      document.cookie = 'access_token=' + tokens_json
+    }
 
-          fetch(`${URI}/get_access_token`, requestOptions)
-          .then(function(response) {
-            // console.log(response.json());
-            return response.json();
-          })
-          .then(function(data){
-            get_info(data)
-            // console.log(1)
-          })
-          .catch(function(error) {
-            console.error(error)
-          });
+  </script>
+
+  <script>
+          // ADD COOKIES, CALL AND MERGE -----------------------------
+          function add_and_call(access_token){
+            add_access_token(access_token)
+            access_token_arr = get_access_tokens()
+            get_info(access_token_arr)
+          }
+
+          function call_current(){
+            access_token_arr = get_access_tokens()
+            get_info(access_token_arr)
+          }
 
           // GET INFORMATION ----------------------------------------
           function get_info(data) {
+            const URI = "http://127.0.0.1:8000"
             const formData  = new FormData();
             formData.append('access_token', data);
             const requestOptions = {
@@ -124,7 +147,6 @@
             };
             fetch(`${URI}/get_info`, requestOptions)
             .then(function(response) {
-              // console.log(response.json());
               return response.json();
             })
             .then(function(data){
@@ -135,6 +157,7 @@
               console.error(error)
               });
           }
+
           // ---------------------------------------------------------
           function call_data(data) {
             sort_balances(data['balances'][0])
@@ -325,11 +348,57 @@
             mainContainer.appendChild(div);
           }
           // -------------
+  
+  </script>
 
-        
-          
+  <script type="text/javascript">
+    (function($) {
+
+      var handler = Plaid.create({
+        clientName: 'Wallet',
+        env: 'sandbox',
+        key: 'e706d62392682c2fed032017b44fdb',
+        product: ['auth'],
+        countryCodes: ['CA'],
+        // Optional – use webhooks to get transaction and error updates
+        webhook: 'https://requestb.in',
+        onLoad: function() {
+          if(get_access_tokens().length > 0){
+            document.getElementById("link-button").innerHTML = "Connect Additional Account";
+            document.getElementById("connect_title").innerHTML = "Click here to add an additional account to your dashboard";
+            call_current()
+          } else {
+          }
         },
+        onSuccess: function(public_token, metadata) {
 
+          div_buttons = document.getElementById('connect_buttons')
+          div_buttons.remove();
+
+          const URI = "http://127.0.0.1:8000"
+          const formData  = new FormData();
+
+          formData.append('public_token', public_token);
+          const requestOptions = {
+            method: 'POST',
+            body: formData,
+          };
+          
+
+          fetch(`${URI}/get_access_token`, requestOptions)
+          .then(function(response) {
+            // console.log(response.json());
+            return response.json();
+          })
+          .then(function(data){
+            // get_info(data)
+            // console.log(1)
+            add_and_call(data)
+          })
+          .catch(function(error) {
+            console.error(error)
+          });
+        },
         onExit: function(err, metadata) {
           console.log('onExit function')
           // The user exited the Link flow.
