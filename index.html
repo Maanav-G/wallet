@@ -19,10 +19,8 @@
 <body>
   <div class="container-fluid">
 
-    <h2>[In Progress] Wallet</h2>
-    <p>Welcome to Wallet, a personal finance and budgetting application I made using Plaid's API, that shows your consolidated financial portfolio by simply connecting all your bank accounts. Currently in progress and only supports one account at a time.</p>
-    
-    <br/>
+    <h2>Wallet</h2>
+    <p>Welcome to Wallet, a personal finance and budgetting application I made using Plaid's API, that shows your consolidated financial portfolio by simply connecting all your bank accounts. </p>
 
     <div class="row" id="connect_buttons" >
       <div class="col">
@@ -30,41 +28,29 @@
           <p id="connect_title">Click here to use Wallet with your personal banking information:</p>
           <button type="button" class="btn btn-outline-dark" id="link-button">
             Connect Account
-            <!-- <p id="connect_button"></p> -->
           </button>
         </div>
       </div>
-      <div class="col" id="clear_button"></div>
+      <div class="col" id="clear_button" style="display: none">
+        <div>
+          <p id="connect_title">Click here to clear all your current accounts:</p>
+          <button type="button" class="btn btn-outline-dark" id="clear-button" onclick="clear_accounts();">
+            Clear
+          </button>
+        </div>
+      </div>
       <div class="col"></div>
       <div class="col"></div>
     </div>
 
-
     <br/>
-<!-- 
-    <div class="row" id="connect_buttons" style="display: none">
-        <div class="col">
-          <div>
-            <p>Click here to use Wallet with your personal banking information:</p>
-            <button type="button" class="btn btn-outline-dark" id="add-button">
-                Add another Account
-            </button>
-          </div>
-        </div>
-        <div class="col">
-          <div>
-            <p>Click here to use Wallet with a demo account:</p>
-            <button type="button" class="btn btn-outline-dark" id="clear-button">
-                Clear
-            </button>
-          </div>
-        </div>
-        <div class="col"></div>
-        <div class="col"></div>
-      </div> -->
-  
 
+    <div id="connecting">
 
+    </div>
+
+    <br/> <br/>
+    
     <div class="row">
 
       <div class="col" style="text-align: center;">
@@ -121,16 +107,62 @@
       document.cookie = 'access_token=' + tokens_json
     }
 
+    function start_loader(){
+      document.getElementById("connecting").innerHTML = `
+      <div class="container-loader">
+        <div class="loader">
+          <div class="duo duo1">
+            <div class="dot dot-a"></div>
+            <div class="dot dot-b"></div>
+          </div>
+          <div class="duo duo2">
+            <div class="dot dot-a"></div>
+            <div class="dot dot-b"></div>
+          </div>
+        </div>
+      </div>
+      <br/><br/><br/>
+      <p style="text-align: center;">Connecting - May take a few seconds</p>
+        
+      `
+    }
+
+    function stop_loader(){
+      document.getElementById("connecting").innerHTML = "";
+    }
+
+    function additional_account_button(){
+      document.getElementById("link-button").innerHTML = "Connect Additional Account";
+      document.getElementById("connect_title").innerHTML = "Click here to add an additional account to your dashboard";
+      document.getElementById('clear_button').style.display="block"
+    }
+
+    function clear_accounts(){
+      // delete's all cookies
+      // cookies = document.cookie.split(";");
+      // for(i = 0; i < cookies.length; i++){
+      //   cookie = cookies[i];
+      //   eqPos = cookie.indexOf("=");
+      //   name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      //   document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      // }
+      
+      // deletes just access_tokens
+      document.cookie = "access_token=[]"
+      location.reload();
+    }
+
+
   </script>
 
   <script>
           // ADD COOKIES, CALL AND MERGE -----------------------------
           function add_and_call(access_token){
             add_access_token(access_token)
-            access_token_arr = get_access_tokens()
-            get_info(access_token_arr)
+            location.reload();
+            // access_token_arr = get_access_tokens()
+            // get_info(access_token_arr)
           }
-
           function call_current(){
             access_token_arr = get_access_tokens()
             get_info(access_token_arr)
@@ -138,6 +170,7 @@
 
           // GET INFORMATION ----------------------------------------
           function get_info(data) {
+            start_loader()
             const URI = "http://127.0.0.1:8000"
             const formData  = new FormData();
             formData.append('access_token', data);
@@ -163,6 +196,7 @@
             sort_balances(data['balances'][0])
             sort_transactions(data['transactions'])
             build_graph(data['monthly_spending'])
+            stop_loader()
           }
           // ---------------------------------------------------------
           function sort_balances(data){
@@ -364,16 +398,16 @@
         webhook: 'https://requestb.in',
         onLoad: function() {
           if(get_access_tokens().length > 0){
-            document.getElementById("link-button").innerHTML = "Connect Additional Account";
-            document.getElementById("connect_title").innerHTML = "Click here to add an additional account to your dashboard";
+            additional_account_button()
             call_current()
           } else {
           }
         },
         onSuccess: function(public_token, metadata) {
 
-          div_buttons = document.getElementById('connect_buttons')
-          div_buttons.remove();
+          // div_buttons = document.getElementById('connect_buttons')
+          // div_buttons.remove();
+          // additional_account_button()
 
           const URI = "http://127.0.0.1:8000"
           const formData  = new FormData();
@@ -387,12 +421,9 @@
 
           fetch(`${URI}/get_access_token`, requestOptions)
           .then(function(response) {
-            // console.log(response.json());
             return response.json();
           })
           .then(function(data){
-            // get_info(data)
-            // console.log(1)
             add_and_call(data)
           })
           .catch(function(error) {
