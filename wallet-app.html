@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Wallet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="plaid-link.js"></script>
+    <!-- <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>     -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+
+</head>
+<header>
+  <br/>
+</header>
+<body>
+  <div class="container-fluid">
+
+    <h2>Wallet</h2>
+    <p>Welcome to Wallet, a personal finance and budgetting application I made using Plaid's API, that shows your consolidated financial portfolio by simply connecting all your bank accounts. </p>
+    <p>Currently only supports the use of a demo account where... <br/> USER: user_good <br/>PASS: pass_good </p>
+    <br/>
+    <div class="row" id="connect_buttons" >
+      <div class="col">
+        <div>
+          <p id="connect_title">Click here to use Wallet with your personal banking information:</p>
+          <button type="button" class="btn btn-outline-dark" id="link-button">
+            Connect Account
+          </button>
+        </div>
+      </div>
+      <div class="col" id="clear_button" style="display: none">
+        <div>
+          <p id="connect_title">Click here to clear all your current accounts:</p>
+          <button type="button" class="btn btn-outline-dark" id="clear-button" onclick="clear_accounts();">
+            Clear
+          </button>
+        </div>
+      </div>
+      <div class="col"></div>
+      <div class="col"></div>
+    </div>
+
+    <br/>
+
+    <div id="connecting">
+
+    </div>
+
+    <br/> <br/>
+    
+    <div class="row">
+
+      <div class="col" style="text-align: center;">
+        <div id="accounts"></div>
+      </div>
+
+      <div class="col-6" style="text-align: center;">
+          <div id="graphs"></div>
+          <div id="chart"></div>
+
+      </div>
+      <div class="col" style="text-align: center;">
+        <div id="transactions"></div>
+      </div>
+    </div>
+
+    
+
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+  <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+
+  <script>
+
+    cookies = document.cookie
+      .split(';')
+      .map(cookie => cookie.split('='))
+      .reduce((accumulator, [key, value]) =>
+        ({ ...accumulator, [key.trim()]: decodeURIComponent(value)}), 
+    {})
+
+    access_token_arr = []
+    access_token_json = JSON.stringify(access_token_arr)
+
+    if(cookies.access_token){
+      arr = cookies.access_token
+      document.cookie = 'access_token=' + arr
+    } else {
+      document.cookie = 'access_token=' + access_token_json
+    }
+
+    function get_access_tokens(){
+      cookies = document.cookie.split(';').map(cookie => cookie.split('=')).reduce((accumulator, [key, value]) => ({ ...accumulator, [key.trim()]: decodeURIComponent(value)}),{})
+      arr = JSON.parse(cookies.access_token)
+      return arr
+    }
+
+    function add_access_token(data){
+      tokens_arr = get_access_tokens()
+      tokens_arr.push(data)
+      tokens_json = JSON.stringify(tokens_arr)
+      document.cookie = 'access_token=' + tokens_json
+    }
+
+    function start_loader(){
+      document.getElementById("connecting").innerHTML = `
+      <div class="container-loader">
+        <div class="loader">
+          <div class="duo duo1">
+            <div class="dot dot-a"></div>
+            <div class="dot dot-b"></div>
+          </div>
+          <div class="duo duo2">
+            <div class="dot dot-a"></div>
+            <div class="dot dot-b"></div>
+          </div>
+        </div>
+      </div>
+      <br/><br/><br/>
+      <p style="text-align: center;">Connecting - May take a few seconds</p>
+        
+      `
+    }
+
+    function stop_loader(){
+      document.getElementById("connecting").innerHTML = "";
+    }
+
+    function additional_account_button(){
+      document.getElementById("link-button").innerHTML = "Connect Additional Account";
+      document.getElementById("connect_title").innerHTML = "Click here to add an additional account to your dashboard";
+      document.getElementById('clear_button').style.display="block"
+    }
+
+    function clear_accounts(){
+      // delete's all cookies
+      cookies = document.cookie.split(";");
+      for(i = 0; i < cookies.length; i++){
+        cookie = cookies[i];
+        eqPos = cookie.indexOf("=");
+        name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      }
+      
+      // deletes just access_tokens
+      // document.cookie = "access_token=[]"
+      location.reload();
+    }
+
+
+  </script>
+
+  <script>
+          // ADD COOKIES, CALL AND MERGE -----------------------------
+          function add_and_call(access_token){
+            add_access_token(access_token)
+            location.reload();
+            // access_token_arr = get_access_tokens()
+            // get_info(access_token_arr)
+          }
+          function call_current(){
+            access_token_arr = get_access_tokens()
+            get_info(access_token_arr)
+          }
+
+          // GET INFORMATION ----------------------------------------
+          function get_info(data) {
+            start_loader()
+            const URI = "https://wallet.maanavgarg.com"
+            const formData  = new FormData();
+            formData.append('access_token', data);
+            const requestOptions = {
+            method: 'POST',
+            body: formData,
+            };
+            fetch(`${URI}/get_info`, requestOptions)
+            .then(function(response) {
+              return response.json();
+            })
+            .then(function(data){
+              // console.log(data)
+              call_data(data[0])
+            })
+            .catch(function(error) {
+              console.error(error)
+              });
+          }
+
+          // ---------------------------------------------------------
+          function call_data(data) {
+            sort_balances(data['balances'][0])
+            sort_transactions(data['transactions'])
+            build_graph(data['monthly_spending'])
+            stop_loader()
+          }
+          // ---------------------------------------------------------
+          function sort_balances(data){
+            header = `
+              <h5 class="card-title">Accounts</h5>
+              <p class="card-subtitle mb-2 text-muted">A brief overview of all your accounts</p>
+              <br/>
+            `
+            
+            networth = data['cash']['total'] + data['creditcard']['total'] + data['investment']['total'] + data['loan']['total'] + data['other']['total']
+            networth_data = ` 
+              <div class="networth">
+                  <a class="btn btn-light btn-block card-text" data-toggle="collapse" href="#networth" role="button" aria-expanded="false" aria-controls="networth">
+                      <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Networth</p></div>
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(networth)}</p></div>
+                      </div>
+                  </a>
+                  <div class="collapse" id="networth">
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Cash</p></div>  
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(data['cash']['total'])}</p></div>
+                        </div>
+                        <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Creditcard</p></div>  
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(data['creditcard']['total'])}</p></div>
+                        </div>
+                        <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Investment</p></div>  
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(data['investment']['total'])}</p></div>
+                        </div>                        
+                        <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Loan</p></div>  
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(data['loan']['total'])}</p></div>
+                        </div>
+                        <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">Other</p></div>  
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(data['other']['total'])}</p></div>
+                        </div>
+                      </div>
+                  </div>
+              </div>
+              <br/>
+            `
+            cash_data = createAccountCard(data['cash'], 'Cash')
+            creditcard_data = createAccountCard(data['creditcard'], 'Creditcard')
+            investment_data = createAccountCard(data['investment'], 'Investment')
+            loan_data = createAccountCard(data['loan'], 'Loan')
+            other_data = createAccountCard(data['other'], 'Other')
+            
+            data = header + ' ' + networth_data + ' ' + cash_data + ' ' + creditcard_data + ' ' + investment_data + ' ' + loan_data + ' ' + other_data
+            appendData(data, 'accounts')
+          }
+
+          function createAccountCard(account, id){
+
+            template = `
+              <div class="${id}">
+                  <a class="btn btn-light btn-block card-text" data-toggle="collapse" href="#${id}" role="button" aria-expanded="false" aria-controls="${id}">
+                      <div class="row">
+                          <div class="col"><p class="card-text" style="text-align: left">${id}</p></div>
+                          <div class="col"><p class="card-text"style="text-align: right">${formatter.format(account.total)}</p></div>
+                      </div>
+                  </a>
+                  <div class="collapse" id="${id}">
+                      <div class="card-body">
+                          ${createAccountsList(account.accounts)}
+                      </div>
+                  </div>
+              </div>
+              <br/>
+              `
+              // ${createAccountsList(account.accounts)}
+            return template
+          }
+
+          function createAccountsList(data){
+            list = ' '
+            for(i = 0; i < data.length; i++){
+                const current = data[i]
+                template = `
+                    <div class="row">
+                        <div class="col"><p class="card-text" style="text-align: left">${current.name}</p></div>  
+                        <div class="col"><p class="card-text"style="text-align: right">${formatter.format(current.balance)}</p></div>
+                    </div>
+                    `     
+                list = list + template
+            }
+            return list
+          }
+          // ---------------------------------------------------------
+          function sort_transactions(data){
+            list = `
+              <h5 class="card-title">Transactions</h5>
+              <p class="card-subtitle mb-2 text-muted" >Your recent transactions</p>
+            `
+            list = list + '<div class="card-body">'
+
+            for(i = 0; i < data.length; i++){
+              current = data[i]
+              template = `
+                <div class = "btn btn-light btn-block card-text" >
+                  <div class="row">
+                    <div class="col"><p class="card-text" style="text-align: left">${current.name}</p></div>  
+                    <div class="col"><p class="card-text"style="text-align: right">${formatter.format(current.balance)}</p></div>
+                  </div>
+                  <div class="row">
+                    <div class="col"><p class="card-text" style="text-align: left">${current.date}</p></div>  
+                    <div class="col"><p class="card-text"style="text-align: right">${current.account_name}</p></div> 
+                  </div>
+                </div>
+              `
+              list = list + template
+            }
+            list = list + '</div>'
+            appendData(list, 'transactions')
+          }
+          // ---------------------------------------------------------
+          function build_graph(data){
+            create_graph(data)
+            template = `
+              <h5 class="card-title">Monthly Spending</h5>
+              <p class="card-subtitle mb-2 text-muted" >Your spending so far this month</p>
+            `
+            appendData(template, 'graphs')
+          }
+
+          function create_graph(data){
+            dates = data[0]
+            prices = data[1]
+
+            for(i = 0; i < prices.length; i++){
+              current = prices[i]
+              formatted_val = current.toFixed(2)
+              prices[i] = formatted_val
+            }
+
+            var options = {
+            chart: {
+              type: 'line',
+              fontFamily: 'Avenir Next',
+              foreColor: '#373d3f'
+            },
+            stroke: {
+              curve: 'smooth',
+              width: 1
+            },
+            series: [{
+              name: "Spending",
+              data: prices
+            }],
+            xaxis: {
+              categories: dates,
+              type: 'datetime'
+            },
+            yaxis: {
+              labels: {
+                formatter: function (value) {
+                  return "$" + formatter_value.format(value);
+                }
+              },
+            },
+          }
+          var chart = new ApexCharts(document.querySelector("#chart"), options);
+          chart.render();
+          }
+
+          // FORMAT TO CURRENCY --------------------------------------
+          const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'CAD',
+            minimumFractionDigits: 2
+          })
+          const formatter_value = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2
+          })
+          // ---------------------------------------------------------
+          function appendData(data, id) {
+            var mainContainer = document.getElementById(id);
+            var div = document.createElement("div");
+            div.innerHTML = data
+            mainContainer.appendChild(div);
+          }
+          // -------------
+  
+  </script>
+
+  <script type="text/javascript">
+    (function($) {
+
+      var handler = Plaid.create({
+        clientName: 'Wallet',
+        env: 'sandbox',
+        key: 'e706d62392682c2fed032017b44fdb',
+        product: ['auth'],
+        countryCodes: ['CA'],
+        // Optional – use webhooks to get transaction and error updates
+        webhook: 'https://requestb.in',
+        onLoad: function() {
+          if(get_access_tokens().length > 0){
+            additional_account_button()
+            call_current()
+          } else {
+          }
+        },
+        onSuccess: function(public_token, metadata) {
+
+          // div_buttons = document.getElementById('connect_buttons')
+          // div_buttons.remove();
+          // additional_account_button()
+
+          const URI = "https://wallet.maanavgarg.com"
+          const formData  = new FormData();
+
+          formData.append('public_token', public_token);
+          const requestOptions = {
+            method: 'POST',
+            body: formData,
+          };
+          
+
+          fetch(`${URI}/get_access_token`, requestOptions)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(data){
+            add_and_call(data)
+          })
+          .catch(function(error) {
+            console.error(error)
+          });
+        },
+        onExit: function(err, metadata) {
+          console.log('onExit function')
+          // The user exited the Link flow.
+          if (err != null) {
+            // The user encountered a Plaid API error prior to exiting.
+          }
+          // metadata contains information about the institution
+          // that the user selected and the most recent API request IDs.
+          // Storing this information can be helpful for support.
+        },
+        onEvent: function(eventName, metadata) {
+          // Optionally capture Link flow events, streamed through
+          // this callback as your users connect an Item to Plaid.
+          // For example:
+          // eventName = "TRANSITION_VIEW"
+          // metadata  = {
+          //   link_session_id: "123-abc",
+          //   mfa_type:        "questions",
+          //   timestamp:       "2017-09-14T14:42:19.350Z",
+          //   view_name:       "MFA",
+          // }
+        }
+      });
+    
+      $('#link-button').on('click', function(e) {
+        handler.open();
+      });
+    })    
+    (jQuery);
+
+  </script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>
