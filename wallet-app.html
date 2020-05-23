@@ -8,17 +8,13 @@
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="plaid-link.js"></script>
-    <!-- <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>     -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
-
 </head>
 <header>
   <br/>
 </header>
 <body>
   <div class="container-fluid">
-
     <h2>Wallet</h2>
     <p>Welcome to Wallet, a personal finance and budgetting application I made using Plaid's API, that shows your consolidated financial portfolio by simply connecting all your bank accounts. </p>
     <p>Currently only supports the use of a demo account where... <br/> USER: user_good <br/>PASS: pass_good </p>
@@ -67,9 +63,6 @@
         <div id="transactions"></div>
       </div>
     </div>
-
-    
-
 
   </div>
 
@@ -147,7 +140,6 @@
         name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
         document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
       }
-      
       // deletes just access_tokens
       // document.cookie = "access_token=[]"
       location.reload();
@@ -395,7 +387,6 @@
         key: 'e706d62392682c2fed032017b44fdb',
         product: ['auth'],
         countryCodes: ['CA'],
-        // Optional – use webhooks to get transaction and error updates
         webhook: 'https://requestb.in',
         onLoad: function() {
           if(get_access_tokens().length > 0){
@@ -405,11 +396,6 @@
           }
         },
         onSuccess: function(public_token, metadata) {
-
-          // div_buttons = document.getElementById('connect_buttons')
-          // div_buttons.remove();
-          // additional_account_button()
-
           const URI = "https://wallet.maanavgarg.com"
           const formData  = new FormData();
 
@@ -432,26 +418,13 @@
           });
         },
         onExit: function(err, metadata) {
-          console.log('onExit function')
           // The user exited the Link flow.
+          console.log('onExit function')
           if (err != null) {
             // The user encountered a Plaid API error prior to exiting.
           }
-          // metadata contains information about the institution
-          // that the user selected and the most recent API request IDs.
-          // Storing this information can be helpful for support.
         },
         onEvent: function(eventName, metadata) {
-          // Optionally capture Link flow events, streamed through
-          // this callback as your users connect an Item to Plaid.
-          // For example:
-          // eventName = "TRANSITION_VIEW"
-          // metadata  = {
-          //   link_session_id: "123-abc",
-          //   mfa_type:        "questions",
-          //   timestamp:       "2017-09-14T14:42:19.350Z",
-          //   view_name:       "MFA",
-          // }
         }
       });
     
