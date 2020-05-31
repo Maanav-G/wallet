@@ -19,5 +19,7 @@ USER: user_good
 PASS: pass_good
 ```
 
+## Demo
+![demo](https://raw.githubusercontent.com/Maanav-G/wallet/master/demo.png)
 
 
