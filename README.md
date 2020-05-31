@@ -20,6 +20,7 @@ PASS: pass_good
 ```
 
 ## Demo
+A visualization of the dashboard itself, displaying a dummy account
 ![demo](https://raw.githubusercontent.com/Maanav-G/wallet/master/demo.png)
 
 
