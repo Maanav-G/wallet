@@ -16,28 +16,31 @@
 <body>
   <div class="container-fluid">
     <h2>Wallet</h2>
-    <p>Welcome to Wallet, a personal finance and budgetting application I made using Plaid's API, that shows your consolidated financial portfolio by simply connecting all your bank accounts. </p>
+    <p>Welcome to Wallet, a personal finance and budgeting application I made using Plaid's API, that shows your consolidated financial portfolio by simply connecting all your bank accounts. </p>
     <p>Currently only supports the use of a demo account where... <br/> USER: user_good <br/>PASS: pass_good </p>
     <br/>
     <div class="row" id="connect_buttons" >
-      <div class="col">
+      <div class="col-sm-3">
         <div>
+          <br/>
           <p id="connect_title">Click here to use Wallet with your personal banking information:</p>
           <button type="button" class="btn btn-outline-dark" id="link-button">
             Connect Account
           </button>
         </div>
       </div>
-      <div class="col" id="clear_button" style="display: none">
+
+      <div class="col-sm-3" id="clear_button" style="display: none">
         <div>
+          <br/>
           <p id="connect_title">Click here to clear all your current accounts:</p>
           <button type="button" class="btn btn-outline-dark" id="clear-button" onclick="clear_accounts();">
             Clear
           </button>
         </div>
       </div>
-      <div class="col"></div>
-      <div class="col"></div>
+      <div class="col-sm-3"></div>
+      <div class="col-sm-3"></div>
     </div>
 
     <br/>
@@ -50,16 +53,16 @@
     
     <div class="row">
 
-      <div class="col" style="text-align: center;">
+      <div class="col-lg-3" style="text-align: center;">
         <div id="accounts"></div>
       </div>
 
-      <div class="col-6" style="text-align: center;">
+      <div class="col-lg-6" style="text-align: center;">
           <div id="graphs"></div>
           <div id="chart"></div>
 
       </div>
-      <div class="col" style="text-align: center;">
+      <div class="col-lg-3" style="text-align: center;">
         <div id="transactions"></div>
       </div>
     </div>
@@ -147,6 +150,7 @@
 
 
   </script>
+
 
   <script>
           // ADD COOKIES, CALL AND MERGE -----------------------------
