@@ -387,11 +387,11 @@
 
       var handler = Plaid.create({
         clientName: 'Wallet',
-        env: 'sandbox',
+        env: 'development',
         key: 'e706d62392682c2fed032017b44fdb',
         product: ['auth'],
         countryCodes: ['CA'],
-        webhook: 'https://requestb.in',
+        // webhook: 'https://requestb.in',
         onLoad: function() {
           if(get_access_tokens().length > 0){
             additional_account_button()
@@ -400,7 +400,7 @@
           }
         },
         onSuccess: function(public_token, metadata) {
-          const URI = "https://wallet.maanavgarg.com"
+          const URI = "http://127.0.0.1:5000"
           const formData  = new FormData();
 
           formData.append('public_token', public_token);
@@ -415,6 +415,7 @@
             return response.json();
           })
           .then(function(data){
+            console.log(data)
             add_and_call(data)
           })
           .catch(function(error) {
